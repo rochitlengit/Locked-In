@@ -1,0 +1,339 @@
+// LockedIn data model.
+// Portable across SQLite (zero-setup demo + tests) and PostgreSQL (production).
+// Status/role columns are plain strings rather than DB enums so the same schema
+// runs on both engines; the allowed values live in src/common/enums.ts and are
+// enforced at the API boundary by class-validator.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id            String         @id @default(cuid())
+  name          String
+  createdAt     DateTime       @default(now())
+  departments   Department[]
+  users         User[]
+  leaveTypes    LeaveType[]
+  announcements Announcement[]
+  skills        Skill[]
+  scoringConfig ScoringConfig?
+}
+
+model Department {
+  id           String       @id @default(cuid())
+  name         String
+  orgId        String
+  organization Organization @relation(fields: [orgId], references: [id])
+  teams        Team[]
+}
+
+model Team {
+  id           String     @id @default(cuid())
+  name         String
+  department   Department @relation(fields: [departmentId], references: [id])
+  departmentId String
+  leadId       String?
+  lead         User?      @relation("TeamLead", fields: [leadId], references: [id])
+  members      User[]     @relation("TeamMembers")
+  tasks        Task[]
+  channels     Channel[]
+  createdAt    DateTime   @default(now())
+}
+
+model User {
+  id           String       @id @default(cuid())
+  email        String       @unique
+  passwordHash String
+  fullName     String
+  role         String       @default("EMPLOYEE") // SUPER_ADMIN | HR | TEAM_LEAD | EMPLOYEE
+  title        String?
+  avatarUrl    String?
+  organization Organization @relation(fields: [orgId], references: [id])
+  orgId        String
+  team         Team?        @relation("TeamMembers", fields: [teamId], references: [id])
+  teamId       String?
+  managerId    String?
+  manager      User?        @relation("ManagerReports", fields: [managerId], references: [id])
+  reports      User[]       @relation("ManagerReports")
+  ledTeams     Team[]       @relation("TeamLead")
+  isActive     Boolean      @default(true)
+  joinedAt     DateTime     @default(now())
+  createdAt    DateTime     @default(now())
+
+  assignedTasks    Task[]              @relation("TaskAssignee")
+  createdTasks     Task[]              @relation("TaskCreator")
+  subtasks         Subtask[]           @relation("SubtaskAssignee")
+  timeLogs         TimeLog[]
+  leaveBalances    LeaveBalance[]
+  leaveRequests    LeaveRequest[]      @relation("LeaveRequester")
+  approvedLeaves   LeaveRequest[]      @relation("LeaveApprover")
+  permissionReqs   PermissionRequest[] @relation("PermRequester")
+  approvedPerms    PermissionRequest[] @relation("PermApprover")
+  grievancesRaised Grievance[]         @relation("GrievanceRaiser")
+  grievancesOwned  Grievance[]         @relation("GrievanceOwner")
+  scoreRecords     ScoreRecord[]
+  badges           UserBadge[]
+  skillMetrics     SkillMetric[]
+  channelMembers   ChannelMember[]
+  messages         Message[]
+  announcements    Announcement[]
+  remarks          Remark[]            @relation("RemarkSubject")
+  remarksGiven     Remark[]            @relation("RemarkAuthor")
+}
+
+model Skill {
+  id           String        @id @default(cuid())
+  name         String
+  orgId        String
+  organization Organization  @relation(fields: [orgId], references: [id])
+  tasks        TaskSkill[]
+  metrics      SkillMetric[]
+
+  @@unique([orgId, name])
+}
+
+model TaskSkill {
+  id      String @id @default(cuid())
+  task    Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId  String
+  skill   Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  skillId String
+
+  @@unique([taskId, skillId])
+}
+
+model SkillMetric {
+  id             String   @id @default(cuid())
+  user           User     @relation(fields: [userId], references: [id])
+  userId         String
+  skill          Skill    @relation(fields: [skillId], references: [id])
+  skillId        String
+  score          Float    @default(0)
+  tasksCompleted Int      @default(0)
+  updatedAt      DateTime @updatedAt
+
+  @@unique([userId, skillId])
+}
+
+model ScoringConfig {
+  id                String       @id @default(cuid())
+  orgId             String       @unique
+  organization      Organization @relation(fields: [orgId], references: [id])
+  timeWeight        Float        @default(0.4)
+  weightageWeight   Float        @default(0.4)
+  deadlineWeight    Float        @default(0.2)
+  latePenaltyPerDay Float        @default(4)
+  earlyBonusPerDay  Float        @default(5)
+  updatedAt         DateTime     @updatedAt
+}
+
+model Task {
+  id               String      @id @default(cuid())
+  title            String
+  description      String?
+  team             Team        @relation(fields: [teamId], references: [id])
+  teamId           String
+  creator          User        @relation("TaskCreator", fields: [creatorId], references: [id])
+  creatorId        String
+  assignee         User?       @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  assigneeId       String?
+  status           String      @default("TODO") // TODO | IN_PROGRESS | IN_REVIEW | DONE | REJECTED
+  approvalStatus   String      @default("NOT_SUBMITTED") // NOT_SUBMITTED | PENDING | APPROVED | REJECTED
+  weightage        Int         @default(3)
+  difficulty       Int         @default(3)
+  estimatedMinutes Int?
+  deadline         DateTime?
+  completedAt      DateTime?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  subtasks         Subtask[]
+  timeLogs         TimeLog[]
+  skills           TaskSkill[]
+}
+
+model Subtask {
+  id         String    @id @default(cuid())
+  task       Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId     String
+  title      String
+  status     String    @default("TODO")
+  assignee   User?     @relation("SubtaskAssignee", fields: [assigneeId], references: [id])
+  assigneeId String?
+  deadline   DateTime?
+  createdAt  DateTime  @default(now())
+  timeLogs   TimeLog[]
+}
+
+model TimeLog {
+  id          String    @id @default(cuid())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
+  task        Task?     @relation(fields: [taskId], references: [id])
+  taskId      String?
+  subtask     Subtask?  @relation(fields: [subtaskId], references: [id])
+  subtaskId   String?
+  startedAt   DateTime
+  endedAt     DateTime?
+  durationSec Int?
+  note        String?
+}
+
+model LeaveType {
+  id                 String         @id @default(cuid())
+  organization       Organization   @relation(fields: [orgId], references: [id])
+  orgId              String
+  name               String
+  defaultDaysPerYear Int            @default(12)
+  balances           LeaveBalance[]
+  requests           LeaveRequest[]
+}
+
+model LeaveBalance {
+  id          String    @id @default(cuid())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
+  leaveType   LeaveType @relation(fields: [leaveTypeId], references: [id])
+  leaveTypeId String
+  year        Int
+  allocated   Float
+  used        Float     @default(0)
+
+  @@unique([userId, leaveTypeId, year])
+}
+
+model LeaveRequest {
+  id          String    @id @default(cuid())
+  user        User      @relation("LeaveRequester", fields: [userId], references: [id])
+  userId      String
+  leaveType   LeaveType @relation(fields: [leaveTypeId], references: [id])
+  leaveTypeId String
+  startDate   DateTime
+  endDate     DateTime
+  reason      String?
+  status      String    @default("PENDING") // PENDING | APPROVED | REJECTED | CANCELLED
+  approver    User?     @relation("LeaveApprover", fields: [approverId], references: [id])
+  approverId  String?
+  createdAt   DateTime  @default(now())
+  decidedAt   DateTime?
+}
+
+model PermissionRequest {
+  id         String   @id @default(cuid())
+  user       User     @relation("PermRequester", fields: [userId], references: [id])
+  userId     String
+  date       DateTime
+  fromTime   String
+  toTime     String
+  reason     String?
+  status     String   @default("PENDING")
+  approver   User?    @relation("PermApprover", fields: [approverId], references: [id])
+  approverId String?
+  createdAt  DateTime @default(now())
+}
+
+model Grievance {
+  id           String    @id @default(cuid())
+  raisedBy     User      @relation("GrievanceRaiser", fields: [raisedById], references: [id])
+  raisedById   String
+  category     String
+  description  String
+  status       String    @default("OPEN") // OPEN | IN_PROGRESS | RESOLVED | CLOSED
+  confidential Boolean   @default(true)
+  owner        User?     @relation("GrievanceOwner", fields: [ownerId], references: [id])
+  ownerId      String?
+  createdAt    DateTime  @default(now())
+  resolvedAt   DateTime?
+}
+
+model ScoreRecord {
+  id                String   @id @default(cuid())
+  user              User     @relation(fields: [userId], references: [id])
+  userId            String
+  periodStart       DateTime
+  periodEnd         DateTime
+  tasksCompleted    Int      @default(0)
+  timeEfficiencyPts Float
+  weightagePts      Float
+  deadlinePts       Float
+  totalScore        Float
+  computedAt        DateTime @default(now())
+}
+
+model Badge {
+  id          String      @id @default(cuid())
+  name        String      @unique
+  description String?
+  icon        String?
+  rule        String? // machine key used by the auto-award engine
+  users       UserBadge[]
+}
+
+model UserBadge {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  badge     Badge    @relation(fields: [badgeId], references: [id])
+  badgeId   String
+  awardedAt DateTime @default(now())
+
+  @@unique([userId, badgeId])
+}
+
+model Channel {
+  id        String          @id @default(cuid())
+  name      String
+  isDM      Boolean         @default(false)
+  team      Team?           @relation(fields: [teamId], references: [id])
+  teamId    String?
+  members   ChannelMember[]
+  messages  Message[]
+  createdAt DateTime        @default(now())
+}
+
+model ChannelMember {
+  id        String  @id @default(cuid())
+  channel   Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channelId String
+  user      User    @relation(fields: [userId], references: [id])
+  userId    String
+
+  @@unique([channelId, userId])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  channel   Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channelId String
+  sender    User     @relation(fields: [senderId], references: [id])
+  senderId  String
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model Announcement {
+  id           String       @id @default(cuid())
+  title        String
+  body         String
+  pinned       Boolean      @default(false)
+  author       User         @relation(fields: [authorId], references: [id])
+  authorId     String
+  organization Organization @relation(fields: [orgId], references: [id])
+  orgId        String
+  publishedAt  DateTime     @default(now())
+}
+
+model Remark {
+  id        String   @id @default(cuid())
+  subject   User     @relation("RemarkSubject", fields: [subjectId], references: [id])
+  subjectId String
+  author    User     @relation("RemarkAuthor", fields: [authorId], references: [id])
+  authorId  String
+  content   String
+  createdAt DateTime @default(now())
+}

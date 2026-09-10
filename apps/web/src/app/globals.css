@@ -1,0 +1,423 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------------------------------------------------------------------------
+   LockedIn "Atrium" design tokens — light (paper/ink) and dark (Atrium
+   Night: warm charcoal, not cold violet — same ink-blue accent, brightened).
+   Every colour Tailwind exposes (gray/brand/emerald/amber/red/blue) is a CSS
+   variable here, so html.dark repaints the whole app with no per-page work.
+--------------------------------------------------------------------------- */
+:root {
+  /* Tailwind palette stops, as "R G B" triplets for rgb(var(..) / <alpha>). */
+  --c-gray-50: 253 252 250;
+  --c-gray-100: 247 245 240;
+  --c-gray-200: 239 236 230;
+  --c-gray-300: 215 209 198;
+  --c-gray-400: 138 141 148;
+  --c-gray-500: 92 95 102;
+  --c-gray-600: 67 70 77;
+  --c-gray-700: 51 53 59;
+  --c-gray-800: 37 39 43;
+  --c-gray-900: 30 32 36;
+
+  --c-brand-50: 227 242 253;
+  --c-brand-100: 204 233 252;
+  --c-brand-200: 153 210 250;
+  --c-brand-300: 92 180 245;
+  --c-brand-400: 33 145 235;
+  --c-brand-500: 11 107 224;
+  --c-brand-600: 9 86 190;
+  --c-brand-700: 7 66 150;
+
+  --c-emerald-50: 228 243 234;
+  --c-emerald-400: 46 148 99;
+  --c-emerald-500: 30 127 85;
+  --c-emerald-600: 22 104 69;
+  --c-emerald-700: 15 78 51;
+
+  --c-amber-50: 251 240 221;
+  --c-amber-400: 194 127 23;
+  --c-amber-500: 154 100 16;
+  --c-amber-600: 124 79 12;
+  --c-amber-700: 94 59 8;
+
+  --c-red-50: 251 233 231;
+  --c-red-400: 199 74 61;
+  --c-red-500: 178 58 47;
+  --c-red-600: 142 46 37;
+  --c-red-700: 107 34 26;
+
+  --c-blue-50: 223 246 251;
+  --c-blue-400: 25 173 195;
+  --c-blue-500: 18 184 206;
+  --c-blue-600: 14 147 165;
+  --c-blue-700: 10 110 124;
+
+  --c-violet-50: 240 232 250;
+  --c-violet-400: 138 76 189;
+  --c-violet-500: 122 63 166;
+  --c-violet-600: 98 48 137;
+  --c-violet-700: 74 34 105;
+
+  /* Semantic tokens used directly in component CSS below. */
+  --paper: #EFECE6;
+  --surface: #F7F5F0;
+  --card: #FDFCFA;
+  --card-hi: #ffffff;
+  --hover: #F1EDE4;
+  --line: #D7D1C6;
+  --line-soft: #E2DDD2;
+
+  --text: #1E2024;
+  --text-dim: #5C5F66;
+  --text-muted: #8A8D94;
+
+  --accent: #0B6BE0;
+  --accent-ink: #074296;
+  --accent-soft: rgba(11, 107, 224, 0.09);
+  --accent-line: rgba(11, 107, 224, 0.4);
+
+  --ok: #1E7F55;
+  --ok-soft: rgba(30, 127, 85, 0.12);
+  --warn: #9A6410;
+  --warn-soft: rgba(154, 100, 16, 0.13);
+  --bad: #B23A2F;
+  --bad-soft: rgba(178, 58, 47, 0.12);
+
+  --ring: 0 0 0 3px rgba(11, 107, 224, 0.18);
+  --shadow-card: 0 1px 2px rgba(30, 32, 36, 0.06), 0 3px 10px -6px rgba(30, 32, 36, 0.14);
+  --shadow-pop: 0 24px 44px -14px rgba(30, 32, 36, 0.3);
+  --shadow-drag: 0 30px 54px -16px rgba(30, 32, 36, 0.4);
+
+  --scrollbar: #D2CBBC;
+  --scrollbar-hover: #C2B9A6;
+  --wash-1: rgba(11, 107, 224, 0.05);
+  --wash-2: transparent;
+
+  color-scheme: light;
+}
+
+/* Atrium Night — warm charcoal, same ink-blue family brightened for contrast. */
+html.dark {
+  --c-gray-50: 23 21 19;
+  --c-gray-100: 29 26 23;
+  --c-gray-200: 34 30 27;
+  --c-gray-300: 51 45 40;
+  --c-gray-400: 143 136 125;
+  --c-gray-500: 173 166 154;
+  --c-gray-600: 201 194 181;
+  --c-gray-700: 221 215 204;
+  --c-gray-800: 236 231 222;
+  --c-gray-900: 246 243 237;
+
+  --c-brand-50: 12 32 54;
+  --c-brand-100: 16 44 72;
+  --c-brand-200: 24 66 104;
+  --c-brand-300: 40 100 152;
+  --c-brand-400: 60 140 204;
+  --c-brand-500: 71 180 240;
+  --c-brand-600: 130 205 247;
+  --c-brand-700: 178 224 250;
+
+  --c-emerald-50: 24 44 35;
+  --c-emerald-400: 74 196 143;
+  --c-emerald-500: 62 180 128;
+  --c-emerald-600: 104 214 165;
+  --c-emerald-700: 140 227 187;
+
+  --c-amber-50: 48 38 18;
+  --c-amber-400: 224 166 63;
+  --c-amber-500: 210 150 53;
+  --c-amber-600: 232 182 92;
+  --c-amber-700: 240 200 122;
+
+  --c-red-50: 50 27 23;
+  --c-red-400: 231 113 98;
+  --c-red-500: 217 95 79;
+  --c-red-600: 236 132 117;
+  --c-red-700: 245 161 146;
+
+  --c-blue-50: 12 42 48;
+  --c-blue-400: 45 195 214;
+  --c-blue-500: 62 210 227;
+  --c-blue-600: 110 224 235;
+  --c-blue-700: 150 235 242;
+
+  --c-violet-50: 46 32 58;
+  --c-violet-400: 189 141 224;
+  --c-violet-500: 178 124 219;
+  --c-violet-600: 202 165 232;
+  --c-violet-700: 220 191 240;
+
+  --paper: #131110;
+  --surface: #191613;
+  --card: #201C19;
+  --card-hi: #29241F;
+  --hover: #241F1B;
+  --line: #3A322B;
+  --line-soft: #2C2622;
+
+  --text: #F3EFE8;
+  --text-dim: #B6AE9F;
+  --text-muted: #8A8172;
+
+  --accent: #47B4F0;
+  --accent-ink: #123049;
+  --accent-soft: rgba(71, 180, 240, 0.14);
+  --accent-line: rgba(71, 180, 240, 0.45);
+
+  --ok: #3EB480;
+  --ok-soft: rgba(62, 180, 128, 0.16);
+  --warn: #D29635;
+  --warn-soft: rgba(210, 150, 53, 0.16);
+  --bad: #D95F4F;
+  --bad-soft: rgba(217, 95, 79, 0.16);
+
+  --ring: 0 0 0 3px rgba(71, 180, 240, 0.3);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5), 0 3px 14px -6px rgba(0, 0, 0, 0.6);
+  --shadow-pop: 0 24px 48px -14px rgba(0, 0, 0, 0.65);
+  --shadow-drag: 0 30px 60px -16px rgba(0, 0, 0, 0.78);
+
+  --scrollbar: #3A322B;
+  --scrollbar-hover: #4A4038;
+  --wash-1: rgba(71, 180, 240, 0.07);
+  --wash-2: rgba(210, 150, 53, 0.04);
+
+  color-scheme: dark;
+}
+
+* { border-color: var(--line); }
+
+html, body {
+  background: var(--paper);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: 'Public Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  background-image: radial-gradient(1000px 480px at -6% -10%, var(--wash-1), transparent 60%),
+    radial-gradient(800px 420px at 106% 8%, var(--wash-2), transparent 60%);
+  transition: background-color .25s ease, color .25s ease;
+}
+
+::selection { background: rgba(11, 107, 224, 0.18); }
+html.dark ::selection { background: rgba(71, 180, 240, 0.28); }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 999px; border: 3px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); background-clip: content-box; }
+
+/* The centre content panel's backdrop, on every app page (dashboard,
+   tasks, everywhere AppShell renders <main>) — kept out of the
+   sidebar/header on purpose, sitting behind the page's own content via a
+   pseudo-element so it never affects text or click targets. Light and dark
+   mode use two different source photos (a pale wave for light, the deep
+   navy swirl for dark) rather than the same image at different opacity —
+   the dark photo just goes muddy on a light page instead of reading as a
+   deliberate light-mode background. */
+main.app-content { position: relative; isolation: isolate; }
+/* position: fixed (not absolute) so the photo stays pinned to the
+   viewport behind the sidebar/header at all times — main is an
+   independently scrolling panel (overflow-y: auto with a capped
+   height), and an absolutely positioned backdrop would scroll away
+   with its content, leaving the plain page colour exposed the moment
+   you scroll past one screenful. */
+main.app-content::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: url('/images/aurora-bg-light.jpg');
+  background-size: cover;
+  background-position: 50% 30%;
+  background-repeat: no-repeat;
+  opacity: 0.5;
+  pointer-events: none;
+}
+html.dark main.app-content::before {
+  background-image: url('/images/aurora-bg.jpg');
+  background-position: 40% 15%;
+  opacity: 0.34;
+}
+
+@layer components {
+  .card {
+    background: color-mix(in srgb, var(--card) 88%, transparent);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid var(--line-soft);
+    border-radius: 0.9rem;
+    box-shadow: var(--shadow-card);
+    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease, background .25s ease;
+  }
+  .card-hover:hover { border-color: var(--line); transform: translateY(-2px); box-shadow: var(--shadow-pop); }
+
+  /* Same glass treatment as .card, for components (like Stat) that build
+     their own rounded/border classes with Tailwind instead of using .card
+     directly — keeps every panel in the app equally translucent over the
+     background photo. */
+  .glass-surface {
+    background: color-mix(in srgb, var(--card) 85%, transparent);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  /* Small animated pill buttons for inline approve/reject-style actions —
+     same press + hover language as .btn-primary/.btn-secondary. */
+  .btn-approve, .btn-reject {
+    @apply inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full;
+    transition: transform .14s cubic-bezier(.34,1.4,.4,1), background .16s ease, box-shadow .16s ease;
+  }
+  .btn-approve { background: var(--ok-soft); color: var(--ok); }
+  .btn-approve:hover { box-shadow: 0 6px 16px -8px var(--ok); filter: brightness(1.05); }
+  .btn-approve:active { transform: scale(.94); }
+  .btn-reject { background: var(--bad-soft); color: var(--bad); }
+  .btn-reject:hover { box-shadow: 0 6px 16px -8px var(--bad); filter: brightness(1.05); }
+  .btn-reject:active { transform: scale(.94); }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium;
+    background: var(--accent); color: #fff; border: 1px solid var(--accent-ink);
+    transition: transform .14s cubic-bezier(.34,1.4,.4,1), filter .16s ease, box-shadow .16s ease, background .25s ease;
+  }
+  html.dark .btn-primary { color: #14162A; }
+  .btn-primary:hover { filter: brightness(1.08); box-shadow: 0 8px 22px -10px rgba(43,73,199,.55); }
+  .btn-primary:active { transform: scale(.97); }
+  .btn-primary:disabled { opacity: .5; filter: none; box-shadow: none; }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium;
+    background: var(--card); color: var(--text-dim); border: 1px solid var(--line);
+    transition: transform .14s cubic-bezier(.34,1.4,.4,1), background .16s ease, color .16s ease, border-color .16s ease;
+  }
+  .btn-secondary:hover { background: var(--hover); color: var(--text); border-color: var(--accent-line); }
+  .btn-secondary:active { transform: scale(.97); }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm;
+    color: var(--text-muted); transition: background .16s ease, color .16s ease;
+  }
+  .btn-ghost:hover { background: var(--hover); color: var(--text); }
+
+  .input {
+    @apply w-full rounded-lg px-3 py-2 text-sm;
+    background: var(--card); border: 1px solid var(--line); color: var(--text);
+    transition: border-color .16s ease, box-shadow .16s ease, background .25s ease;
+  }
+  .input::placeholder { color: var(--text-muted); }
+  .input:focus { outline: none; border-color: var(--accent-line); box-shadow: var(--ring); }
+
+  /* Kanban ---------------------------------------------------------------- */
+  .kanban-col {
+    background: rgba(255,255,255,0.4); border: 1px solid var(--line-soft); border-radius: 0.9rem;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+  }
+  html.dark .kanban-col { background: rgba(255,255,255,0.035); }
+  .kanban-col.is-over { border-color: var(--accent-line); background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent-line); }
+  .kanban-col.is-blocked { border-color: rgba(178,58,47,.4); background: var(--bad-soft); }
+
+  .drop-hint { border: 1.5px dashed var(--accent-line); background: var(--accent-soft); border-radius: 0.75rem; }
+
+  /* Sidebar --------------------------------------------------------------- */
+  .nav-link {
+    @apply relative flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-[13px];
+    color: var(--text-dim); transition: background .15s ease, color .15s ease;
+  }
+  .nav-link:hover { background: var(--hover); color: var(--text); }
+  .nav-link.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .nav-link.active::before {
+    content: ''; position: absolute; left: -10px; top: 50%; height: 16px; width: 3px; border-radius: 999px;
+    background: var(--accent); transform: translateY(-50%);
+  }
+
+  .chip { @apply inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full font-medium; border: 1px solid transparent; }
+
+  /* Text sitting on a solid accent fill: white on the light-mode blue,
+     dark ink on the brighter dark-mode blue, so it always stays legible. */
+  .on-accent { color: #fff; }
+  html.dark .on-accent { color: #14162A; }
+
+  .skeleton {
+    background: linear-gradient(90deg, var(--line-soft) 25%, var(--hover) 50%, var(--line-soft) 75%);
+    background-size: 800px 100%;
+    @apply animate-shimmer rounded-md;
+  }
+}
+
+input[type='checkbox'], input[type='radio'], input[type='range'] { accent-color: var(--accent); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+}
+
+@layer components {
+  /* Login hero backdrop — the user's actual reference photo, not a CSS
+     recreation. Mirrored horizontally (keeps the dark mass over the logo
+     top-left and the text block, tucks the one pale glow into the
+     bottom-right corner instead of behind the tagline) and set with
+     background-size: cover so it fills the panel at any aspect ratio the
+     same way object-fit: cover would on an <img> — crops, never stretches.
+     A soft top/bottom scrim keeps text legible over whichever slice of the
+     photo a given viewport crops to, and the grain overlay masks the
+     upscale from the photo's original (563x364) resolution. Always dark,
+     independent of the light/dark app theme — this panel is imagery, not a
+     themed surface. */
+  .aurora-hero {
+    background-color: #03040a;
+    background-image: url('/images/aurora-bg.jpg');
+    background-size: cover;
+    background-position: 46% 30%;
+    background-repeat: no-repeat;
+  }
+  .aurora-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(
+      180deg,
+      rgba(2, 3, 8, 0.4) 0%,
+      rgba(2, 3, 8, 0) 26%,
+      rgba(2, 3, 8, 0) 66%,
+      rgba(2, 3, 8, 0.55) 100%
+    );
+    pointer-events: none;
+  }
+  /* Same photo, positioned for a full-viewport splash instead of the tall
+     narrow login panel — used once, on the opening screen. */
+  .splash-bg {
+    background-color: #03040a;
+    background-image: url('/images/aurora-bg.jpg');
+    background-size: cover;
+    background-position: 42% 25%;
+    background-repeat: no-repeat;
+  }
+  .splash-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(80% 60% at 50% 45%, rgba(2, 3, 8, 0) 0%, rgba(2, 3, 8, 0.55) 100%);
+    pointer-events: none;
+  }
+
+  .aurora-hero::after,
+  .splash-bg::after {
+    content: '';
+    position: absolute;
+    inset: -20%;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    opacity: 0.16;
+    mix-blend-mode: overlay;
+    animation: auroraGrain 1s steps(2) infinite;
+    pointer-events: none;
+  }
+  @keyframes auroraGrain {
+    0% { transform: translate(0, 0); }
+    50% { transform: translate(-2%, 1%); }
+    100% { transform: translate(1%, -1%); }
+  }
+}
