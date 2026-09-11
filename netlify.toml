@@ -4,7 +4,7 @@
   publish = ".next"
 
 [build.environment]
-  NEXT_PUBLIC_API_URL = "http://localhost:4000"
+  NEXT_PUBLIC_API_URL = "https://locked-inlockedin-api.onrender.com"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
