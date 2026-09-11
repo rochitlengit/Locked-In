@@ -1,6 +1,7 @@
 [build]
   base = "apps/web"
   command = "npm run build"
+  publish = ".next"
 
 [build.environment]
   NEXT_PUBLIC_API_URL = "http://localhost:4000"
